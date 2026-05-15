@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>TKT / Turkish Armed Forces</title>
+    <style>
+        :root {
+            --primary: #cc0000;
+            --primary-glow: rgba(204, 0, 0, 0.8);
+            --bg-overlay: rgba(5, 5, 5, 0.85); 
+            --glass: rgba(15, 15, 15, 0.95);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
+                        url('https://media.istockphoto.com/id/472330089/tr/vekt%C3%B6r/red-flag-of-turkey-with-white-symbol.jpg?s=612x612&w=0&k=20&c=1URrZ51FAoNb5O-vULrE6YeGZ3mJP3ck9T7Nrxeh58M=');
+            background-size: cover; background-attachment: fixed; background-position: center;
+            color: #fff; height: 100vh; overflow: hidden;
+            cursor: default; /* Fare artık görünür */
+        }
+
+        /* Radar Mouse Effect - Fareyi takip eden kırmızı parlaklık */
+        #cursor-glow {
+            position: fixed; width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(204, 0, 0, 0.12) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
+        }
+
+        /* Scanline & Glitch Effect */
+        body::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            z-index: 1000; background-size: 100% 4px; pointer-events: none; opacity: 0.4;
+        }
+
+        #fx-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+        .drop { position: absolute; background: rgba(255, 255, 255, 0.15); width: 1px; height: 35px; animation: fall linear infinite; }
+        
+        @keyframes fall { to { transform: translateY(100vh); } }
+
+        /* Login Screen */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; justify-content: center; align-items: center;
+            z-index: 10000; transition: 1.2s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .login-box {
+            background: var(--glass); padding: 50px; border: 1px solid var(--primary);
+            text-align: center; box-shadow: 0 0 70px #000; border-radius: 4px;
+        }
+
+        .login-input {
+            width: 80%; padding: 15px; background: #0a0a0a; border: 1px solid #333;
+            color: #fff; margin-bottom: 20px; outline: none; text-align: center; font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .login-btn {
+            background: var(--primary); color: #fff; border: none; padding: 15px 40px;
+            cursor: pointer; font-weight: bold; width: 85%; transition: 0.3s; letter-spacing: 2px;
+        }
+        .login-btn:hover { background: #ff0000; box-shadow: 0 0 20px var(--primary-glow); }
+
+        /* Main UI */
+        #main-ui { display: none; height: 100vh; position: relative; z-index: 5; }
+
+        .sidebar {
+            width: 280px; background: rgba(5, 5, 5, 0.98);
+            border-right: 2px solid var(--primary); display: flex; flex-direction: column;
+            position: relative; z-index: 20;
+        }
+
+        .brand-zone { padding: 40px 20px; text-align: center; border-bottom: 1px solid #222; }
+        .brand-zone h2 { font-size: 1rem; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); margin: 0; }
+
+        .menu-btn {
+            background: none; border: none; color: #555; padding: 20px 25px;
+            text-align: left; cursor: pointer; transition: 0.4s; font-weight: bold; letter-spacing: 1px;
+        }
+        .menu-btn:hover, .menu-btn.active {
+            color: #fff; background: linear-gradient(90deg, rgba(204,0,0,0.15), transparent);
+            border-left: 5px solid var(--primary); padding-left: 35px;
+        }
+
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; position: relative; z-index: 10; }
+
+        .glass-card {
+            background: var(--glass); padding: 30px; border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 25px;
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Search Bar */
+        .search-box {
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid #333; color: #fff; margin-bottom: 20px; outline: none;
+            box-sizing: border-box; transition: 0.3s;
+        }
+        .search-box:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(204,0,0,0.3); }
+
+        .bl-item {
+            padding: 14px; border-bottom: 1px solid #1a1a1a;
+            display: flex; justify-content: space-between; transition: 0.3s;
+        }
+        .bl-item:hover { background: rgba(204,0,0,0.05); padding-left: 25px; }
+
+        .contact-link { 
+            color: var(--primary); text-decoration: none; font-weight: bold; 
+            transition: 0.3s; padding: 5px 10px; background: rgba(204,0,0,0.1); border-radius: 4px;
+        }
+        .contact-link:hover { background: var(--primary); color: #fff; box-shadow: 0 0 15px var(--primary-glow); }
+
+        .dev-tag {
+            position: fixed; bottom: 15px; right: 25px; font-size: 0.85rem;
+            color: #444; letter-spacing: 1px; font-weight: bold; z-index: 100;
+        }
+        .dev-tag span { color: var(--primary); text-shadow: 0 0 5px var(--primary-glow); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        h3 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
+        strong { color: #fff; display: block; margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 10px; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div id="cursor-glow"></div>
+    <div id="fx-container"></div>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h1 style="color:var(--primary); letter-spacing: 8px; margin:0;">TKT</h1>
+            <p style="color:#444; margin-bottom:40px; font-weight:bold;">TKT TURKISH ARMED FORCES</p>
+            <input type="text" id="username" class="login-input" placeholder="İsim Giriniz">
+            <button class="login-btn" onclick="login()">GİRİŞ YAP</button>
+        </div>
+    </div>
+
+    <div id="main-ui">
+        <div class="sidebar">
+            <div class="brand-zone">
+                <h2>TKT / Turkish Armed Forces</h2>
+                <div id="display-name" style="color: #fff; font-size: 0.8rem; margin-top:10px; letter-spacing:2px; opacity:0.5;"></div>
+            </div>
+            <button class="menu-btn active" onclick="openTab(event, 'home')">ANA SAYFA</button>
+            <button class="menu-btn" onclick="openTab(event, 'blacklist')">KARA LİSTE</button>
+            <button class="menu-btn" onclick="openTab(event, 'branches')">BRANŞLAR</button>
+            <button class="menu-btn" onclick="openTab(event, 'holders')">HOLDERLAR</button>
+            <button class="menu-btn" onclick="openTab(event, 'contact')">İLETİŞİM</button>
+        </div>
+
+        <div class="main-content">
+            <div id="home" class="tab-content active">
+                <div class="glass-card">
+                    <h3>MERKEZ DURUMU</h3>
+                    <p style="font-size: 1.4rem;">DURUM: <span style="color: #00ff00; text-shadow: 0 0 10px #00ff00;">GÜVENLİ / AKTİF</span></p>
+                </div>
+                <div class="glass-card">
+                    <h3>BİLGİLENDİRME</h3>
+                    <p style="color: #999; line-height: 1.8;">TKT / Turkish Armed Forces bilgilendirme merkezine hoş geldiniz. Burada topluluk kurallarını ihlal edenlerin kayıtlarına, aktif askeri birimlere ve yetkili listelerine ulaşabilirsiniz.</p>
+                </div>
+            </div>
+
+            <div id="blacklist" class="tab-content">
+                <div class="glass-card">
+                    <h3>KARA LİSTE KAYITLARI</h3>
+                    <input type="text" id="blSearch" class="search-box" onkeyup="filterBlacklist()" placeholder="KİŞİ VEYA GRUP ADI ARA...">
+                    
+                    <strong>KARALİSTE KİŞİLER</strong>
+                    <div id="blacklist-items">
+                        <div class="bl-item"><span>muhsinalperen19</span> <b>(2)</b></div>
+                        <div class="bl-item"><span>cinar09821</span> <b>(6, 9)</b></div>
+                        <div class="bl-item"><span>radioactivechiclet</span> <b>(1, 5, 9)</b></div>
+                        <div class="bl-item"><span>xsstolgs</span> <b>-</b></div>
+                        <div class="bl-item"><span>PROPANDA00205</span> <b>(3, 9)</b></div>
+                        <div class="bl-item"><span>566288036619354127</span> <b>(1)</b></div>
+                        <div class="bl-item"><span>Mr_Kamil0 / 1223002009460932618</span> <b>(1, 6)</b></div>
+                        <div class="bl-item"><span>1483785840789426307</span> <b>(9)</b></div>
+                        <div class="bl-item"><span>berlingo11</span> <b>(3)</b></div>
+                        <div class="bl-item"><span>Fear</span> <b>(9, 2)</b></div>
+                        <div class="bl-item"><span>gufyipy</span> <b>(2, 9)</b></div>
+                        <div class="bl-item"><span>cakirbey0850</span> <b>(1)</b></div>
+                        <div class="bl-item"><span>CatelTruvh</span> <b>(3)</b></div>
+                        <div class="bl-item"><span>West / 1371225428194496623</span> <b>(9)</b></div>
+                        <div class="bl-item"><span>1067897228976455680</span> <b>-</b></div>
+                        <div class="bl-item"><span>1260319059019300986</span> <b>(1)</b></div>
+                    </div>
+
+                    <strong style="margin-top: 25px;">KARALİSTE GRUPLAR</strong>
+                    <div id="group-items">
+                        <div class="bl-item"><span>| THO | Türk Harp Okulu</span> <b>(1, 2)</b></div>
+                        <div class="bl-item"><span>| AAT | Ankara Askeri Kuvvetleri</span> <b>(9)</b></div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3>KODLAR VE ANLAMLARI</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: #888;">
+                        <div>(1) Reklam / Adam Çekmek</div>
+                        <div>(2) Değerlere Küfür (Milli/Dini)</div>
+                        <div>(3) Abuse / Yetki Kötüye Kullanımı</div>
+                        <div>(4) Dolandırıcılık / Sahte Kanıt</div>
+                        <div>(5) İsyan Teşviki</div>
+                        <div>(6) Rakip Kamplarda Yetki</div>
+                        <div>(7) Sahtekarlık</div>
+                        <div>(8) Yetkili Tacizi</div>
+                        <div>(9) Diğer Sebepler</div>
+                    </div>
+                    <p style="font-size:0.7rem; color:#444; margin-top:20px;">Son Güncelleme: 14.05.2026</p>
+                </div>
+            </div>
+
+            <div id="branches" class="tab-content">
+                <div class="glass-card">
+                    <h3>AKTİF BİRİMLER</h3>
+                    <div class="bl-item">KARA KUVVETLERİ</div>
+                    <div class="bl-item">HAVA KUVVETLERİ</div>
+                    <div class="bl-item">JANDARMA GENEL KOMUTANLIĞI</div>
+                    <div class="bl-item">ÖZEL KUVVETLER KOMUTANLIĞI</div>
+                    <div class="bl-item">ASKERİ İNZİBAT (AS.İZ)</div>
+                </div>
+            </div>
+
+            <div id="holders" class="tab-content">
+                <div class="glass-card">
+                    <h3>KAMP HOLDERLARI</h3>
+                    <div class="bl-item">hz_emo</div>
+                    <div class="bl-item" style="color: var(--primary);">r3cksyn</div>
+                    <div class="bl-item">makarov</div>
+                    <div class="bl-item">struzhen</div>
+                </div>
+            </div>
+
+            <div id="contact" class="tab-content">
+                <div class="glass-card">
+                    <h3>RESMİ İLETİŞİM</h3>
+                    <p>Merkezi Discord: <a href="https://discord.gg/tktarmy" target="_blank" class="contact-link">KATILMAK İÇİN TIKLA</a></p>
+                    <p>Resmi Tiktok: <a href="https://www.tiktok.com/@tktarmy1" target="_blank" class="contact-link">TAKİP ET</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dev-tag">DEVELOPED BY <span>AyazzTncay</span></div>
+
+    <script>
+        // Radar Mouse Tracking
+        document.addEventListener('mousemove', (e) => {
+            const glow = document.getElementById('cursor-glow');
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+
+        // Rain FX
+        function createRain() {
+            const container = document.getElementById('fx-container');
+            for(let i=0; i<80; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'drop';
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.animationDuration = (Math.random() * 0.4 + 0.4) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(drop);
+            }
+        }
+        createRain();
+
+        function login() {
+            const val = document.getElementById('username').value;
+            if(val.trim() !== "") {
+                document.getElementById('login-overlay').style.opacity = '0';
+                document.getElementById('display-name').innerText = "DOĞRULANDI: " + val.toUpperCase();
+                setTimeout(() => {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('main-ui').style.display = 'flex';
+                }, 1200);
+            }
+        }
+
+        function openTab(evt, tabName) {
+            const content = document.getElementsByClassName("tab-content");
+            for (let c of content) c.classList.remove("active");
+            const btns = document.getElementsByClassName("menu-btn");
+            for (let b of btns) b.classList.remove("active");
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Kara Liste Sorgulama Fonksiyonu
+        function filterBlacklist() {
+            const input = document.getElementById("blSearch").value.toUpperCase();
+            const items = document.getElementsByClassName("bl-item");
+            for (let i = 0; i < items.length; i++) {
+                const text = items[i].innerText || items[i].textContent;
+                if (text.toUpperCase().indexOf(input) > -1) {
+                    items[i].style.display = "flex";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
